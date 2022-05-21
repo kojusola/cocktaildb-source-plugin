@@ -80,4 +80,4 @@ exports.createSchemaCustomization = ({ actions }) => {
   `)
 }
 
-exports.onPreInit = () => console.log("Loaded gatsby-starter-plugin")
+exports.onPreInit = () => console.log("Loaded gatsby-source-cocktaildb")
