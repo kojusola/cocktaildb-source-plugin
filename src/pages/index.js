@@ -3,7 +3,14 @@ import { graphql } from "gatsby"
 import { GatsbyImage } from "gatsby-plugin-image"
 const Home = ({ data }) => {
   return (
-    <div style={{ padding: "32px" }}>
+    <div
+      style={{
+        padding: "32px",
+        width: "100%",
+        maxWidth: "1440px",
+        margin: "0 auto",
+      }}
+    >
       <h1>Drinks</h1>
       <section
         style={{
