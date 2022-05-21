@@ -79,33 +79,5 @@ exports.createSchemaCustomization = ({ actions }) => {
     }
   `)
 }
-// exports.createResolvers = ({
-//   actions,
-//   cache,
-//   createNodeId,
-//   createResolvers,
-//   store,
-//   reporter,
-// }) => {
-//   const { createNode } = actions
-//   createResolvers({
-//     // Handle images
-//     allPost: {
-//       image: {
-//         type: `File`,
-//         resolve(source, args, context, info) {
-//           return createRemoteFileNode({
-//             url: source.strDrinkThumb,
-//             store,
-//             cache,
-//             createNode,
-//             createNodeId,
-//             reporter,
-//           })
-//         },
-//       },
-//     },
-//   })
-// }
 
 exports.onPreInit = () => console.log("Loaded gatsby-starter-plugin")
