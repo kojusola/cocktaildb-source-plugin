@@ -6,6 +6,7 @@ const Home = ({ data }) => {
     <div
       style={{
         padding: "32px",
+        paddingTop: "80px",
         width: "100%",
         maxWidth: "1440px",
         margin: "0 auto",
