@@ -14,8 +14,27 @@
 
 const axios = require("axios")
 const { createRemoteFileNode } = require(`gatsby-source-filesystem`)
+const { convert } = require("html-to-text")
 
 const POST_NODE_TYPE = `Post`
+
+const shuffleArray = posts => {
+  const duplicateArray = [...posts]
+
+  for (
+    let currentIndex = duplicateArray.length - 1;
+    currentIndex > 0;
+    currentIndex--
+  ) {
+    const randomIndex = Math.floor(Math.random() * (currentIndex + 1))
+    ;[duplicateArray[currentIndex], duplicateArray[randomIndex]] = [
+      duplicateArray[randomIndex],
+      duplicateArray[currentIndex],
+    ]
+  }
+
+  return duplicateArray.slice(0, 3)
+}
 
 exports.sourceNodes = async ({
   actions,
@@ -26,21 +45,42 @@ exports.sourceNodes = async ({
   const { createNode } = actions
   const data = await axios
     .get("https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=Cocktail")
-    .then(response =>
-      response?.data?.drinks?.forEach(post => {
-        createNode({
-          ...post,
-          id: createNodeId(`${POST_NODE_TYPE}-${post.idDrink}`),
-          parent: null,
-          children: [],
-          internal: {
-            type: POST_NODE_TYPE,
-            content: JSON.stringify(post),
-            contentDigest: createContentDigest(post),
-          },
+    .then(response => {
+      return response?.data?.drinks
+    })
+  if (data) {
+    for (const post of data) {
+      const result = await axios
+        .get(
+          encodeURI(
+            `https://en.wikipedia.org/w/api.php?action=parse&section=0&prop=text&format=json&page=${post.strDrink}`
+          )
+        )
+        .then(response => {
+          return response?.data?.parse?.text["*"]
         })
+
+      const text = convert(result, {
+        wordwrap: 100,
+      }).substring(0, 100)
+
+      createNode({
+        ...post,
+        slug: post.strDrink.toLowerCase().split(" ").join("_"),
+        furtherInformationHTML: result,
+        furtherInformationExcerpt: `${text ? `${text}...` : null}`,
+        relatedDrinks: shuffleArray(data),
+        id: createNodeId(`${POST_NODE_TYPE}-${post.idDrink}`),
+        parent: null,
+        children: [],
+        internal: {
+          type: POST_NODE_TYPE,
+          content: JSON.stringify(post),
+          contentDigest: createContentDigest(post),
+        },
       })
-    )
+    }
+  }
   return
 }
 
@@ -62,6 +102,18 @@ exports.onCreateNode = async ({
     if (fileNode) {
       createNodeField({ node, name: "localFile", value: fileNode.id })
     }
+    for (const drink of node?.relatedDrinks) {
+      const fileNode = await createRemoteFileNode({
+        // The remote image URL for which to generate a node.
+        url: drink?.strDrinkThumb,
+        parentNodeId: drink?.idDrink,
+        createNode,
+        createNodeId,
+        getCache,
+      })
+      delete drink.featuredImg
+      drink.featuredImg = fileNode.id
+    }
   }
 }
 
@@ -76,6 +128,16 @@ exports.createSchemaCustomization = ({ actions }) => {
       idDrink: String!
       strDrink: String
       strDrinkThumb: String
+      slug: String
+      furtherInformationHTML: String
+      furtherInformationExcerpt: String
+      relatedDrinks: [Related]
+    }
+    type Related {
+      idDrink: String!
+      strDrink: String
+      strDrinkThumb: String
+      featuredImg: File @link(from: "featuredImg" by: "id")
     }
   `)
 }

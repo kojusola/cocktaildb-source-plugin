@@ -1,6 +1,8 @@
 import React from "react"
 import { graphql } from "gatsby"
 import { GatsbyImage } from "gatsby-plugin-image"
+import Link from "gatsby-link"
+import "../styles/index.css"
 const Home = ({ data }) => {
   return (
     <div
@@ -22,13 +24,22 @@ const Home = ({ data }) => {
       >
         {data?.allPost?.edges?.map(post => {
           return (
-            <div
+            // <Link to={post?.node?.slug} style={{ textDecoration: "none" }}>
+            <Link
               key={post?.node?.idDrink}
+              to={post?.node?.slug}
+              className="drink-link"
               style={{
                 display: `flex`,
                 flexDirection: `column`,
                 padding: 16,
                 border: `1px solid #ccc`,
+                textDecoration: "none",
+                borderRadius: "10px",
+                color: "black",
+                ":hover": {
+                  backgroundColor: "black",
+                },
               }}
             >
               <h2>{post?.node?.idDrink}</h2>
@@ -41,7 +52,13 @@ const Home = ({ data }) => {
               <span style={{ textAlign: "center", marginTop: "20px" }}>
                 {post?.node?.strDrink}
               </span>
-            </div>
+              <span style={{ textAlign: "center", marginTop: "10px" }}>
+                {post?.node?.furtherInformationExcerpt === "null"
+                  ? "No further information"
+                  : `${post?.node?.furtherInformationExcerpt}`}
+              </span>
+            </Link>
+            // </Link>
           )
         })}
       </section>
@@ -56,14 +73,27 @@ export const query = graphql`
     allPost {
       edges {
         node {
+          idDrink
+          strDrink
+          strDrinkThumb
           featuredImg {
             childImageSharp {
               gatsbyImageData
             }
           }
-          idDrink
-          strDrink
-          strDrinkThumb
+          furtherInformationHTML
+          furtherInformationExcerpt
+          slug
+          relatedDrinks {
+            idDrink
+            strDrink
+            strDrinkThumb
+            featuredImg {
+              childImageSharp {
+                gatsbyImageData
+              }
+            }
+          }
         }
       }
     }
