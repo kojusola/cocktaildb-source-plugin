@@ -33,7 +33,7 @@ const shuffleArray = posts => {
     ]
   }
 
-  return duplicateArray.slice(0, 3)
+  return duplicateArray
 }
 
 exports.sourceNodes = async ({
@@ -69,7 +69,7 @@ exports.sourceNodes = async ({
         slug: post.strDrink.toLowerCase().split(" ").join("_"),
         furtherInformationHTML: result,
         furtherInformationExcerpt: `${text ? `${text}...` : null}`,
-        relatedDrinks: shuffleArray(data),
+        relatedDrinks: [],
         id: createNodeId(`${POST_NODE_TYPE}-${post.idDrink}`),
         parent: null,
         children: [],
@@ -84,60 +84,111 @@ exports.sourceNodes = async ({
   return
 }
 
-exports.onCreateNode = async ({
-  node, // i.e. the just-created node
-  actions: { createNode, createNodeField },
-  createNodeId,
-  getCache,
-}) => {
-  if (node.internal.type === POST_NODE_TYPE) {
-    const fileNode = await createRemoteFileNode({
-      // The remote image URL for which to generate a node.
-      url: node.strDrinkThumb,
-      parentNodeId: node.idDrink,
-      createNode,
-      createNodeId,
-      getCache,
-    })
-    if (fileNode) {
-      createNodeField({ node, name: "localFile", value: fileNode.id })
-    }
-    for (const drink of node?.relatedDrinks) {
-      const fileNode = await createRemoteFileNode({
-        // The remote image URL for which to generate a node.
-        url: drink?.strDrinkThumb,
-        parentNodeId: drink?.idDrink,
-        createNode,
-        createNodeId,
-        getCache,
-      })
-      delete drink.featuredImg
-      drink.featuredImg = fileNode.id
-    }
-  }
-}
+// exports.onCreateNode = async ({
+//   node, // i.e. the just-created node
+//   actions: { createNode, createNodeField },
+//   createNodeId,
+//   getCache,
+// }) => {
+//   if (node.internal.type === POST_NODE_TYPE) {
+//     const fileNode = await createRemoteFileNode({
+//       // The remote image URL for which to generate a node.
+//       url: node.strDrinkThumb,
+//       parentNodeId: node.idDrink,
+//       createNode,
+//       createNodeId,
+//       getCache,
+//     })
+//     if (fileNode) {
+//       createNodeField({ node, name: "localFile", value: fileNode.id })
+//     }
+//     for (const drink of node?.relatedDrinks) {
+//       const fileNode = await createRemoteFileNode({
+//         // The remote image URL for which to generate a node.
+//         url: drink?.strDrinkThumb,
+//         parentNodeId: drink?.idDrink,
+//         createNode,
+//         createNodeId,
+//         getCache,
+//       })
+//       delete drink.featuredImg
+//       drink.featuredImg = fileNode.id
+//     }
+//   }
+// }
 
+exports.createResolvers = ({
+  actions,
+  cache,
+  createNodeId,
+  createResolvers,
+  store,
+  reporter,
+}) => {
+  const { createNode } = actions
+
+  const resolvers = {
+    Post: {
+      featuredImg: {
+        type: "File",
+        resolve: async source => {
+          const fileNode = await createRemoteFileNode({
+            // The remote image URL for which to generate a node.
+            url: `${source.strDrinkThumb}`,
+            parentNodeId: source.idDrink,
+            createNode,
+            createNodeId,
+            cache,
+            reporter,
+          })
+
+          return fileNode
+        },
+      },
+      relatedDrinks: {
+        type: "[Related]",
+        resolve: async (source, context) => {
+          const results = await context.nodeModel.getTypes()
+          console.log(results)
+          const { entries } = await context.nodeModel.findAll({ type: `Drink` })
+          if (entries) {
+            const x = Array.from(entries)
+            const related = x.shuffleArray().slice(0, 3)
+            if (related) {
+              return related
+            }
+          }
+        },
+      },
+    },
+  }
+
+  createResolvers(resolvers)
+}
 exports.createSchemaCustomization = ({ actions }) => {
   const { createTypes } = actions
   createTypes(`
     type Post implements Node {
-      post: Post
-      featuredImg: File @link(from: "fields.localFile")
+      post: Drink
     }
-    type Post {
+    type Drink {
       idDrink: String!
       strDrink: String
       strDrinkThumb: String
       slug: String
       furtherInformationHTML: String
       furtherInformationExcerpt: String
+      featuredImg: File
       relatedDrinks: [Related]
     }
     type Related {
-      idDrink: String!
+     idDrink: String!
       strDrink: String
       strDrinkThumb: String
-      featuredImg: File @link(from: "featuredImg" by: "id")
+      slug: String
+      furtherInformationHTML: String
+      furtherInformationExcerpt: String
+      featuredImg: File
     }
   `)
 }
