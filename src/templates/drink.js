@@ -57,7 +57,7 @@ const Drink = ({ data }) => {
               return (
                 <a
                   key={post?.idDrink}
-                  href={post?.strDrink.toLowerCase().split(" ").join("_")}
+                  href={`/${post?.slug}`}
                   className="drink-link"
                   style={{
                     display: `flex`,
@@ -90,6 +90,19 @@ const Drink = ({ data }) => {
                   <span style={{ textAlign: "center", marginTop: "20px" }}>
                     {post?.strDrink}
                   </span>
+                  <span
+                    style={{
+                      textAlign: "center",
+                      fontSize: "1.2em",
+                      color: "black",
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        post?.furtherInformationExcerpt === "null"
+                          ? "No further information"
+                          : post?.furtherInformationExcerpt,
+                    }}
+                  ></span>
                 </a>
               )
             })}
@@ -122,6 +135,8 @@ export const query = graphql`
             idDrink
             strDrink
             strDrinkThumb
+            slug
+            furtherInformationExcerpt
             featuredImg {
               childImageSharp {
                 gatsbyImageData

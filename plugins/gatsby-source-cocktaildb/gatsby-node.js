@@ -69,7 +69,6 @@ exports.sourceNodes = async ({
         slug: post.strDrink.toLowerCase().split(" ").join("_"),
         furtherInformationHTML: result,
         furtherInformationExcerpt: `${text ? `${text}...` : null}`,
-        relatedDrinks: [],
         id: createNodeId(`${POST_NODE_TYPE}-${post.idDrink}`),
         parent: null,
         children: [],
@@ -146,17 +145,15 @@ exports.createResolvers = ({
         },
       },
       relatedDrinks: {
-        type: "[Related]",
-        resolve: async (source, context) => {
-          const results = await context.nodeModel.getTypes()
-          console.log(results)
-          const { entries } = await context.nodeModel.findAll({ type: `Drink` })
+        type: "[Post]",
+        resolve: async (source, args, context) => {
+          const { entries } = await context.nodeModel.findAll({ type: `Post` })
           if (entries) {
-            const x = Array.from(entries)
-            const related = x.shuffleArray().slice(0, 3)
+            const data = Array.from(entries)
+            const related = shuffleArray(data).slice(0, 3)
             if (related) {
               return related
-            }
+            } else return null
           }
         },
       },
@@ -169,9 +166,6 @@ exports.createSchemaCustomization = ({ actions }) => {
   const { createTypes } = actions
   createTypes(`
     type Post implements Node {
-      post: Drink
-    }
-    type Drink {
       idDrink: String!
       strDrink: String
       strDrinkThumb: String
@@ -179,16 +173,7 @@ exports.createSchemaCustomization = ({ actions }) => {
       furtherInformationHTML: String
       furtherInformationExcerpt: String
       featuredImg: File
-      relatedDrinks: [Related]
-    }
-    type Related {
-     idDrink: String!
-      strDrink: String
-      strDrinkThumb: String
-      slug: String
-      furtherInformationHTML: String
-      furtherInformationExcerpt: String
-      featuredImg: File
+      relatedDrinks: [Post]
     }
   `)
 }
