@@ -8,7 +8,8 @@ module.exports = {
   plugins: [
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-image`,
-    `gatsby-source-cocktaildb`,
+    // `gatsby-source-cocktaildb`,
+    `gatsby-theme-cocktail`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {
@@ -19,6 +20,7 @@ module.exports = {
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
     `gatsby-plugin-image`,
+    // require.resolve(`../gatsby-theme-minimal`),
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
