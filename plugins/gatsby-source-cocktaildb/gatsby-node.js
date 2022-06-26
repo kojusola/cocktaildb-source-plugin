@@ -83,6 +83,7 @@ exports.sourceNodes = async ({
   return
 }
 
+// using oncreateNode
 // exports.onCreateNode = async ({
 //   node, // i.e. the just-created node
 //   actions: { createNode, createNodeField },
@@ -116,6 +117,7 @@ exports.sourceNodes = async ({
 //   }
 // }
 
+// using create resolvers
 exports.createResolvers = ({
   actions,
   cache,
