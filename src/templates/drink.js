@@ -70,7 +70,11 @@ const Drink = ({ data }) => {
                   }}
                 >
                   <h2>{post?.idDrink}</h2>
-                  {post?.featuredImg ? (
+                  <GatsbyImage
+                    image={post?.featuredImg?.childImageSharp?.gatsbyImageData}
+                    alt={post?.strDrink}
+                  />
+                  {/* {post?.featuredImg ? (
                     <GatsbyImage
                       image={
                         post?.featuredImg?.childImageSharp?.gatsbyImageData
@@ -86,7 +90,7 @@ const Drink = ({ data }) => {
                         height: "414px",
                       }}
                     ></img>
-                  )}
+                  )} */}
                   <span style={{ textAlign: "center", marginTop: "20px" }}>
                     {post?.strDrink}
                   </span>

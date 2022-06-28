@@ -1,12 +1,12 @@
+/** @jsxImportSource @compiled/react */
 import React from "react"
-import { jsx } from "theme-ui"
 import Header from "./header"
 
 export default function Layout({ children }) {
   return (
-    <div className="w-full">
+    <div css={{ width: "100%" }}>
       <Header />
-      <div sx={{ width: "100%", padding: "20px" }}>{children}</div>
+      <div css={{ width: "100%", padding: "20px" }}>{children}</div>
     </div>
   )
 }

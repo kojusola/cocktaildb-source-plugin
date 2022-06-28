@@ -9,7 +9,18 @@ module.exports = {
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-image`,
     // `gatsby-source-cocktaildb`,
-    `gatsby-theme-cocktail`,
+    // `gatsby-theme-cocktail`,
+    {
+      resolve: `gatsby-theme-cocktail`,
+      options: {
+        fonts: {
+          fonts: [
+            `source sans pro\:300,400,400i,700`, // you can also specify font weights and styles
+          ],
+          display: "swap",
+        },
+      },
+    },
     {
       resolve: `gatsby-source-filesystem`,
       options: {

@@ -3,7 +3,8 @@ import { graphql } from "gatsby"
 import { GatsbyImage } from "gatsby-plugin-image"
 import Link from "gatsby-link"
 import "../styles/index.css"
-import Layout from "gatsby-theme-cocktail/src/components/layout"
+import Layout from "../components/layout"
+
 const Home = ({ data }) => {
   return (
     <Layout>
@@ -12,7 +13,7 @@ const Home = ({ data }) => {
           padding: "32px",
           paddingTop: "80px",
           width: "100%",
-          maxWidth: "1440px",
+          maxWidth: "1000px",
           margin: "0 auto",
         }}
       >
